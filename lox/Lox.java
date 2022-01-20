@@ -34,7 +34,6 @@ enum TokenType {
 public class Lox {
     static boolean hadError = false;
     
-    
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
             System.out.println("Usage: jlox {script}");
