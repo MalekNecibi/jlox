@@ -26,6 +26,7 @@ class Scanner {
     private void scanToken() {
         char c = advance();
         switch(c) {
+            // one-char lexemes
             case '(':
                 addToken(TokenType.LEFT_PAREN);
                 break;
@@ -56,24 +57,101 @@ class Scanner {
             case '*':
                 addToken(TokenType.STAR);
                 break;
+
+            // one/two-char lexemes
             case '!':
-                addToken( match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
+                addToken(match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
                 break;
             case '=':
-                addToken( match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+                addToken(match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
                 break;
             case '<':
-                addToken( match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+                addToken(match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
             case '>':
-                addToken( match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+                addToken(match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
                 break;
-            // end: custom implementation of one/two char tokens
+            
+            // one/many-char lexemes
+            case '/':
+                if (match('/')) {
+                    // skip all until end of comment (newline)
+                    while (peek() != '\n' && !isAtEnd()) {
+                        advance();
+                    }
+                } else {
+                    addToken(TokenType.SLASH);
+                }
+                break;
+            
+            // whitespace
+            case ' ':
+            case '\r':
+            case '\t':
+                break;  // ignore
+            case '\n':
+                line++; // newline
+                break;
+            
+            // literals
+            case '"':
+                string();  // strings
+                break;
             
             default:
-                Lox.error(line, "Unexpected character.");
+                if (isDigit(c)) {
+                    number();   // numbers
+                
+                } else {
+                    // catch unexpected characters
+                    Lox.error(line, "Unexpected character.");
+                }
                 break;
         }
+    }
+
+    private void number() {
+        while ( isDigit(peek()) ) {
+            advance();
+        }
+        // Look for a fractional part.
+        if (peek() == '.' && isDigit(peekNext())) {
+            // Consume the "."
+            advance();
+            while (isDigit(peek()))  {
+                advance();
+            }
+        }
+        addToken(TokenType.NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
+
+    private char peekNext() {
+        if (current + 1 >= source.length()) {
+            return '\0';
+        }
+        return source.charAt(current + 1);
+    }
+
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private void string() {
+        while (peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n') {
+                line++;
+            }
+            advance();
+        }
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated string.");
+            return;
+        }
+        // The closing "
+        advance();
+        // Trim the surrounding quotes.
+        String value = source.substring(start + 1, current - 1);
+        addToken(TokenType.STRING, value);
     }
 
     // if this char could be the start of a one-or-two char lexeme, determines which is the case
@@ -89,6 +167,11 @@ class Scanner {
         
         current++;  // don't double-count second char of lexeme/token
         return true;
+    }
+
+    private char peek() {
+        if (isAtEnd()) return '\0';
+        return source.charAt(current);
     }
 
     private boolean isAtEnd() {
