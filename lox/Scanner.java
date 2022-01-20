@@ -56,35 +56,17 @@ class Scanner {
             case '*':
                 addToken(TokenType.STAR);
                 break;
-            
-            // begin: custom implementation of one/two char tokens
             case '!':
-                if (match('=')) {
-                    addToken(TokenType.BANG_EQUAL);
-                } else {
-                    addToken(TokenType.BANG);
-                }
+                addToken( match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
                 break;
             case '=':
-                if (match('=')) {
-                    addToken(TokenType.EQUAL_EQUAL);
-                } else {
-                    addToken(TokenType.EQUAL);
-                }
+                addToken( match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
                 break;
             case '<':
-                if (match('=')) {
-                    addToken(TokenType.GREATER_EQUAL);
-                } else {
-                    addToken(TokenType.GREATER);
-                }
+                addToken( match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
             case '>':
-                if (match('=')) {
-                    addToken(TokenType.LESS_EQUAL);
-                } else {
-                    addToken(TokenType.LESS);
-                }
+                addToken( match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
                 break;
             // end: custom implementation of one/two char tokens
             
