@@ -3,7 +3,11 @@
 5.0
 5 / 5
 
-/* comment */
+/* com
+ment */
+
+// below is example of end-of-multiline comment problem
+*/
 
 word
 var
