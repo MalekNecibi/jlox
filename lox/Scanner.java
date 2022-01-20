@@ -76,10 +76,7 @@ class Scanner {
             case ';':
                 addToken(TokenType.SEMICOLON);
                 break;
-            case '*':
-                addToken(TokenType.STAR);
-                break;
-
+            
             // one/two-char lexemes
             case '!':
                 addToken(match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
@@ -93,12 +90,26 @@ class Scanner {
             case '>':
                 addToken(match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
                 break;
+            case '*':
+                if (!match('/')) {
+                    addToken(TokenType.STAR);   // PROBLEM! End-of-multiline-comment can be added (get ignored) anywhere 
+                }
+                break;
+            
             
             // one/many-char lexemes
             case '/':
                 if (match('/')) {
                     // skip all until end of comment (newline)
                     while (peek() != '\n' && !isAtEnd()) {
+                        advance();
+                    }
+                } else if (match('*')) {
+                    // skip all until end of multi-line comment
+                    while ( !(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
+                        if (peek() == '\n') {
+                            line++;
+                        }
                         advance();
                     }
                 } else {
@@ -229,7 +240,7 @@ class Scanner {
         return current >= source.length();
     }
 
-    private char advance() {
+    private char advance() {    
         return source.charAt(current++);
     }
 
