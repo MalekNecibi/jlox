@@ -13,7 +13,7 @@ class Scanner {
 
     static {
         keywords = new HashMap<>();
-        keywords.put("and",		TokenType.AND);     // PROBLEM! breaking DRY principle
+        keywords.put("and",		TokenType.AND);     // PROBLEM! DRY principle
         keywords.put("class",	TokenType.CLASS);
         keywords.put("else",	TokenType.ELSE);
         keywords.put("false",	TokenType.FALSE);
@@ -47,7 +47,7 @@ class Scanner {
 
     private void scanToken() {
         char c = advance();
-        switch(c) {
+        switch(c) {     // PROBLEM! DRY principle. Create lookup table/hashmap instead of switch-cases
             // one-char lexemes
             case '(':
                 addToken(TokenType.LEFT_PAREN);
@@ -120,6 +120,7 @@ class Scanner {
                 string();  // strings
                 break;
             
+            // misc
             default:
                 if (isDigit(c)) {
                     number();   // numbers
